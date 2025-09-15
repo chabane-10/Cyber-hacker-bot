@@ -34,6 +34,14 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             z-index: 10;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .container.show {
+            opacity: 1;
+            visibility: visible;
         }
 
         .logo-container {
@@ -259,16 +267,15 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
             pointer-events: none;
         }
 
-        .loading-overlay.show {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: none;
+        .loading-overlay.hide {
+            opacity: 0;
+            visibility: hidden;
         }
 
         .loading-content {
@@ -302,9 +309,35 @@
             color: #ccc;
             margin-top: 10px;
         }
+
+        /* Animacao de entrada da tela principal */
+        .container-enter {
+            animation: fadeInUp 1.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Overlay de carregamento inicial -->
+    <div class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Carregando...</div>
+            <div class="loading-message">Aguarde um momento</div>
+        </div>
+    </div>
+
+    <!-- Conteúdo principal (inicialmente oculto) -->
     <div class="container">
         <div class="logo-container">
             <i class="fas fa-plane"></i>
@@ -323,45 +356,47 @@
         </div>
     </div>
 
-    <!-- Overlay de carregamento -->
-    <div class="loading-overlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Abrindo WhatsApp...</div>
-            <div class="loading-message">Por favor, aguarde</div>
-        </div>
-    </div>
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const joinButton = document.getElementById('joinGroup');
-            const botButton = document.getElementById('getBot');
             const loadingOverlay = document.querySelector('.loading-overlay');
+            const container = document.querySelector('.container');
             const whatsappLink = "https://chat.whatsapp.com/Kiyjak0DMM1FCIr4GYF19H";
+
+            // Mostra a tela principal após 3 segundos de animação de carregamento
+            setTimeout(() => {
+                loadingOverlay.classList.add('hide');
+                container.classList.add('show');
+                container.classList.add('container-enter');
+            }, 3000);
 
             // Função para iniciar a animação e abrir o WhatsApp após 3s
             function handleButtonClick(button) {
                 // Adiciona classe de animação
                 button.classList.add('clicked');
 
-                // Mostra overlay
-                loadingOverlay.classList.add('show');
+                // Mostra overlay de clique
+                const clickOverlay = document.createElement('div');
+                clickOverlay.className = 'loading-overlay';
+                clickOverlay.innerHTML = `
+                    <div class="loading-content">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">Abrindo WhatsApp...</div>
+                        <div class="loading-message">Por favor, aguarde</div>
+                    </div>
+                `;
+                document.body.appendChild(clickOverlay);
 
                 // Aguarda 3 segundos antes de redirecionar
                 setTimeout(() => {
                     window.open(whatsappLink, '_blank');
-                    loadingOverlay.classList.remove('show');
+                    document.body.removeChild(clickOverlay);
                     button.classList.remove('clicked');
                 }, 3000);
             }
 
             // Adiciona evento aos botões
-            joinButton.addEventListener('click', () => handleButtonClick(joinButton));
-            botButton.addEventListener('click', () => handleButtonClick(botButton));
-
-            // Evita comportamento padrão de link (usamos buttons, não links)
-            joinButton.preventDefault = () => {};
-            botButton.preventDefault = () => {};
+            document.getElementById('joinGroup').addEventListener('click', () => handleButtonClick(document.getElementById('joinGroup')));
+            document.getElementById('getBot').addEventListener('click', () => handleButtonClick(document.getElementById('getBot')));
         });
     </script>
 </body>
