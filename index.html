@@ -575,6 +575,9 @@
             const alertOverlay = document.querySelector('.alert-overlay');
             const botPage = document.querySelector('.bot-page');
 
+            // Verifica se o usuário já entrou no grupo
+            const hasJoinedGroup = localStorage.getItem('hasJoinedGroup') === 'true';
+
             // Mostra a tela principal após 3 segundos de carregamento inicial
             setTimeout(() => {
                 initialLoading.classList.add('hide');
@@ -594,10 +597,18 @@
                     clickLoading.classList.remove('show');
                     
                     if (action === 'join') {
+                        // Marca no localStorage que o usuário entrou no grupo
+                        localStorage.setItem('hasJoinedGroup', 'true');
                         window.open("https://chat.whatsapp.com/Kiyjak0DMM1FCIr4GYF19H", "_blank");
                     } else if (action === 'get') {
-                        // Exibe o alerta se o usuário ainda não entrou no grupo
-                        alertOverlay.classList.add('show');
+                        // Se já entrou no grupo → abre a tela do Bot Aviator
+                        if (hasJoinedGroup) {
+                            container.classList.remove('show');
+                            botPage.classList.add('show');
+                        } else {
+                            // Se ainda não entrou → mostra o alerta
+                            alertOverlay.classList.add('show');
+                        }
                     }
                     
                     // Remove a classe de animação após 3 segundos
@@ -625,15 +636,4 @@
             // Função para contactar o suporte via WhatsApp
             function contactSupport() {
                 const message = encodeURIComponent("Olá, quero obter o Bot Aviator! Gostaria de entender como funciona o aplicativo para ganhar no jogo Aviator e receber as instruções de pagamento.");
-                window.open(`https://wa.me/258865191059?text=${message}`, "_blank");
-            }
-
-            // Função para voltar à tela anterior
-            function goBack() {
-                botPage.classList.remove('show');
-                container.classList.add('show');
-            }
-        });
-    </script>
-</body>
-</html>
+         
