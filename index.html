@@ -23,6 +23,56 @@
             overflow-x: hidden;
         }
 
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            pointer-events: none;
+        }
+
+        .loading-overlay.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top: 5px solid #ff3366;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Conteúdo principal (inicialmente oculto) */
         .container {
             width: 100%;
             max-width: 400px;
@@ -115,7 +165,7 @@
             border: none;
             border-radius: 12px;
             font-size: 19px;
-            font-weight: 1400; /* MÁXIMO GROSSO POSSÍVEL */
+            font-weight: 1400;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
@@ -163,7 +213,6 @@
             left: 100%;
         }
 
-        /* ANIMAÇÃO DE CLICADO — EXATAMENTE 3 SEGUNDOS */
         .btn.clicked {
             animation: buttonClick 3s ease-out forwards;
             transform-origin: center;
@@ -254,8 +303,8 @@
             }
         }
 
-        /* Overlay de carregamento — MOSTRA A ANIMAÇÃO E ESPERA 3s */
-        .loading-overlay {
+        /* Overlay de carregamento durante clique - DURA 1 SEGUNDO */
+        .click-loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -266,64 +315,191 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
-            opacity: 1;
-            visibility: visible;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
+            z-index: 1001;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
             pointer-events: none;
         }
 
-        .loading-overlay.hide {
+        .click-loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Alerta para quem clica em "Obter Bot Aviator" sem estar no grupo */
+        .alert-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
             opacity: 0;
             visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
-        .loading-content {
-            text-align: center;
+        .alert-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .alert-box {
+            background-color: #8B0000;
             color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 300px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
 
-        .loading-spinner {
-            width: 60px;
-            height: 60px;
-            border: 5px solid rgba(255, 255, 255, 0.1);
-            border-top: 5px solid #ff3366;
-            border-radius: 50%;
-            animation: spin 1.2s linear infinite;
-            margin-bottom: 20px;
+        .alert-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .loading-message {
+        .alert-message {
             font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .ok-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background-color: #2ecc71;
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        .ok-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+        }
+
+        /* Tela do Bot Aviator */
+        .bot-page {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 1000;
+            padding: 30px;
+            box-sizing: border-box;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .bot-page.show {
+            display: flex;
+        }
+
+        .bot-icon {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            background-image: url('https://i.imgur.com/9uYkLrK.png');
+            background-size: cover;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .bot-title {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .bot-description {
             color: #ccc;
-            margin-top: 10px;
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            max-width: 300px;
         }
 
-        /* Animacao de entrada da tela principal */
-        .container-enter {
-            animation: fadeInUp 1.5s ease-out;
+        .warning-icon {
+            color: #FFD700;
+            margin-right: 8px;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .attention-text {
+            color: #FFD700;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .support-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background-color: #2ecc71;
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .support-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 204, 113, 0.6);
+        }
+
+        .back-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background-color: transparent;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .back-btn:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
@@ -332,12 +508,11 @@
     <div class="loading-overlay">
         <div class="loading-content">
             <div class="loading-spinner"></div>
-            <div class="loading-text">Carregando...</div>
-            <div class="loading-message">Aguarde um momento</div>
+            <div class="loading-text">Aguarde um momento</div>
         </div>
     </div>
 
-    <!-- Conteúdo principal (inicialmente oculto) -->
+    <!-- Conteúdo principal (escondido até o carregamento inicial terminar) -->
     <div class="container">
         <div class="logo-container">
             <i class="fas fa-plane"></i>
@@ -356,47 +531,108 @@
         </div>
     </div>
 
+    <!-- Overlay de carregamento durante clique - DURA 1 SEGUNDO -->
+    <div class="click-loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Aguarde um momento</div>
+        </div>
+    </div>
+
+    <!-- Alerta para quem clica em "Obter Bot Aviator" sem estar no grupo -->
+    <div class="alert-overlay">
+        <div class="alert-box">
+            <div class="alert-title">Por favor</div>
+            <div class="alert-message">Primeiro entre no grupo, depois volte a obter o Bot Aviator</div>
+            <button class="ok-btn">OK</button>
+        </div>
+    </div>
+
+    <!-- Tela do Bot Aviator -->
+    <div class="bot-page">
+        <div class="bot-icon"></div>
+        <div class="bot-title">Bot Aviator</div>
+        <div class="bot-description">
+            Para obter o Bot Aviator, é necessário entrar em contacto com o suporte no WhatsApp e receber todas as instruções sobre como funciona o nosso aplicativo para ganhar no jogo Aviator.
+        </div>
+        <div class="attention-text">
+            <i class="fas fa-exclamation-triangle warning-icon"></i>
+            Atenção: O aplicativo tem custo e não é gratuito.
+        </div>
+        <button class="support-btn" onclick="contactSupport()">
+            <i class="fas fa-comment-alt"></i> Contactar Suporte WhatsApp
+        </button>
+        <button class="back-btn" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const loadingOverlay = document.querySelector('.loading-overlay');
+            const initialLoading = document.querySelector('.loading-overlay');
             const container = document.querySelector('.container');
-            const whatsappLink = "https://chat.whatsapp.com/Kiyjak0DMM1FCIr4GYF19H";
+            const clickLoading = document.querySelector('.click-loading-overlay');
+            const alertOverlay = document.querySelector('.alert-overlay');
+            const botPage = document.querySelector('.bot-page');
 
-            // Mostra a tela principal após 3 segundos de animação de carregamento
+            // Mostra a tela principal após 3 segundos de carregamento inicial
             setTimeout(() => {
-                loadingOverlay.classList.add('hide');
+                initialLoading.classList.add('hide');
                 container.classList.add('show');
-                container.classList.add('container-enter');
             }, 3000);
 
-            // Função para iniciar a animação e abrir o WhatsApp após 3s
-            function handleButtonClick(button) {
-                // Adiciona classe de animação
+            // Função para tratar o clique nos botões
+            function handleButtonClick(button, action) {
+                // Mostra o overlay de carregamento durante o clique
+                clickLoading.classList.add('show');
+                
+                // Aplica animação visual no botão
                 button.classList.add('clicked');
-
-                // Mostra overlay de clique
-                const clickOverlay = document.createElement('div');
-                clickOverlay.className = 'loading-overlay';
-                clickOverlay.innerHTML = `
-                    <div class="loading-content">
-                        <div class="loading-spinner"></div>
-                        <div class="loading-text">Abrindo WhatsApp...</div>
-                        <div class="loading-message">Por favor, aguarde</div>
-                    </div>
-                `;
-                document.body.appendChild(clickOverlay);
-
-                // Aguarda 3 segundos antes de redirecionar
+                
+                // Após 1 segundo, realiza a ação (para o spinner)
                 setTimeout(() => {
-                    window.open(whatsappLink, '_blank');
-                    document.body.removeChild(clickOverlay);
-                    button.classList.remove('clicked');
-                }, 3000);
+                    clickLoading.classList.remove('show');
+                    
+                    if (action === 'join') {
+                        window.open("https://chat.whatsapp.com/Kiyjak0DMM1FCIr4GYF19H", "_blank");
+                    } else if (action === 'get') {
+                        // Exibe o alerta se o usuário ainda não entrou no grupo
+                        alertOverlay.classList.add('show');
+                    }
+                    
+                    // Remove a classe de animação após 3 segundos
+                    setTimeout(() => {
+                        button.classList.remove('clicked');
+                    }, 3000);
+                }, 1000);
             }
 
-            // Adiciona evento aos botões
-            document.getElementById('joinGroup').addEventListener('click', () => handleButtonClick(document.getElementById('joinGroup')));
-            document.getElementById('getBot').addEventListener('click', () => handleButtonClick(document.getElementById('getBot')));
+            // Adiciona evento ao botão "Entrar no Grupo"
+            document.getElementById('joinGroup').addEventListener('click', () => {
+                handleButtonClick(document.getElementById('joinGroup'), 'join');
+            });
+
+            // Adiciona evento ao botão "Obter Bot Aviator"
+            document.getElementById('getBot').addEventListener('click', () => {
+                handleButtonClick(document.getElementById('getBot'), 'get');
+            });
+
+            // Fechar alerta ao clicar no botão OK
+            document.querySelector('.ok-btn').addEventListener('click', function() {
+                alertOverlay.classList.remove('show');
+            });
+
+            // Função para contactar o suporte via WhatsApp
+            function contactSupport() {
+                const message = encodeURIComponent("Olá, quero obter o Bot Aviator! Gostaria de entender como funciona o aplicativo para ganhar no jogo Aviator e receber as instruções de pagamento.");
+                window.open(`https://wa.me/258865191059?text=${message}`, "_blank");
+            }
+
+            // Função para voltar à tela anterior
+            function goBack() {
+                botPage.classList.remove('show');
+                container.classList.add('show');
+            }
         });
     </script>
 </body>
