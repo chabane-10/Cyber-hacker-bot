@@ -23,6 +23,7 @@
             overflow-x: hidden;
         }
 
+        /* Overlay de carregamento inicial - DURA 3 SEGUNDOS */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -72,7 +73,7 @@
             letter-spacing: 1px;
         }
 
-        /* Conteúdo principal (inicialmente oculto) */
+        /* Conteúdo principal */
         .container {
             width: 100%;
             max-width: 400px;
@@ -303,31 +304,7 @@
             }
         }
 
-        /* Overlay de carregamento durante clique - DURA 1 SEGUNDO */
-        .click-loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.85);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-            pointer-events: none;
-        }
-
-        .click-loading-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* Alerta para quem clica em "Obter Bot Aviator" sem estar no grupo */
+        /* Alerta para quem tenta obter o bot sem entrar no grupo */
         .alert-overlay {
             position: fixed;
             top: 0;
@@ -357,7 +334,6 @@
             text-align: center;
             max-width: 300px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            position: relative;
         }
 
         .alert-title {
@@ -512,7 +488,7 @@
         </div>
     </div>
 
-    <!-- Conteúdo principal (escondido até o carregamento inicial terminar) -->
+    <!-- Conteúdo principal -->
     <div class="container">
         <div class="logo-container">
             <i class="fas fa-plane"></i>
@@ -531,15 +507,7 @@
         </div>
     </div>
 
-    <!-- Overlay de carregamento durante clique - DURA 1 SEGUNDO -->
-    <div class="click-loading-overlay">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Aguarde um momento</div>
-        </div>
-    </div>
-
-    <!-- Alerta para quem clica em "Obter Bot Aviator" sem estar no grupo -->
+    <!-- Alerta para quem tenta obter o bot sem entrar no grupo -->
     <div class="alert-overlay">
         <div class="alert-box">
             <div class="alert-title">Por favor</div>
@@ -569,71 +537,75 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const initialLoading = document.querySelector('.loading-overlay');
+            const loadingOverlay = document.querySelector('.loading-overlay');
             const container = document.querySelector('.container');
-            const clickLoading = document.querySelector('.click-loading-overlay');
             const alertOverlay = document.querySelector('.alert-overlay');
             const botPage = document.querySelector('.bot-page');
 
-            // Verifica se o usuário já entrou no grupo
-            const hasJoinedGroup = localStorage.getItem('hasJoinedGroup') === 'true';
-
-            // Mostra a tela principal após 3 segundos de carregamento inicial
+            // Mostra a tela principal após 3 segundos
             setTimeout(() => {
-                initialLoading.classList.add('hide');
+                loadingOverlay.classList.add('hide');
                 container.classList.add('show');
             }, 3000);
 
-            // Função para tratar o clique nos botões
-            function handleButtonClick(button, action) {
-                // Mostra o overlay de carregamento durante o clique
-                clickLoading.classList.add('show');
-                
-                // Aplica animação visual no botão
-                button.classList.add('clicked');
-                
-                // Após 1 segundo, realiza a ação (para o spinner)
-                setTimeout(() => {
-                    clickLoading.classList.remove('show');
-                    
-                    if (action === 'join') {
-                        // Marca no localStorage que o usuário entrou no grupo
-                        localStorage.setItem('hasJoinedGroup', 'true');
-                        window.open("https://chat.whatsapp.com/Kiyjak0DMM1FCIr4GYF19H", "_blank");
-                    } else if (action === 'get') {
-                        // Se já entrou no grupo → abre a tela do Bot Aviator
-                        if (hasJoinedGroup) {
-                            container.classList.remove('show');
-                            botPage.classList.add('show');
-                        } else {
-                            // Se ainda não entrou → mostra o alerta
-                            alertOverlay.classList.add('show');
-                        }
-                    }
-                    
-                    // Remove a classe de animação após 3 segundos
-                    setTimeout(() => {
-                        button.classList.remove('clicked');
-                    }, 3000);
-                }, 1000);
+            // Função para abrir WhatsApp
+            function openWhatsApp() {
+                window.open("https://chat.whatsapp.com/Kiyjak0DMM1FCIr4GYF19H", "_blank");
             }
 
-            // Adiciona evento ao botão "Entrar no Grupo"
-            document.getElementById('joinGroup').addEventListener('click', () => {
-                handleButtonClick(document.getElementById('joinGroup'), 'join');
+            // Função para contactar suporte
+            function contactSupport() {
+                const message = encodeURIComponent("Olá, quero obter o Bot Aviator! Gostaria de entender como funciona o aplicativo para ganhar no jogo Aviator e receber as instruções de pagamento.");
+                window.open(`https://wa.me/258865191059?text=${message}`, "_blank");
+            }
+
+            // Função para voltar à tela principal
+            function goBack() {
+                botPage.classList.remove('show');
+                container.classList.add('show');
+            }
+
+            // Evento: Clicar em "Entrar no Grupo"
+            document.getElementById('joinGroup').addEventListener('click', function() {
+                this.classList.add('clicked');
+                
+                // Marca imediatamente no localStorage que o usuário entrou no grupo
+                localStorage.setItem('hasJoinedGroup', 'true');
+                
+                // Abre o WhatsApp
+                openWhatsApp();
+                
+                // Remove a animação após 3s
+                setTimeout(() => {
+                    this.classList.remove('clicked');
+                }, 3000);
             });
 
-            // Adiciona evento ao botão "Obter Bot Aviator"
-            document.getElementById('getBot').addEventListener('click', () => {
-                handleButtonClick(document.getElementById('getBot'), 'get');
+            // Evento: Clicar em "Obter Bot Aviator"
+            document.getElementById('getBot').addEventListener('click', function() {
+                this.classList.add('clicked');
+
+                // VERIFICA SE JÁ ENTROU NO GRUPO — AGORA EM TEMPO REAL!
+                if (localStorage.getItem('hasJoinedGroup') === 'true') {
+                    // Se sim → abre a tela do Bot
+                    container.classList.remove('show');
+                    botPage.classList.add('show');
+                } else {
+                    // Se não → mostra alerta
+                    alertOverlay.classList.add('show');
+                }
+
+                // Remove a animação após 3s
+                setTimeout(() => {
+                    this.classList.remove('clicked');
+                }, 3000);
             });
 
-            // Fechar alerta ao clicar no botão OK
+            // Fechar alerta ao clicar em OK
             document.querySelector('.ok-btn').addEventListener('click', function() {
                 alertOverlay.classList.remove('show');
             });
-
-            // Função para contactar o suporte via WhatsApp
-            function contactSupport() {
-                const message = encodeURIComponent("Olá, quero obter o Bot Aviator! Gostaria de entender como funciona o aplicativo para ganhar no jogo Aviator e receber as instruções de pagamento.");
-         
+        });
+    </script>
+</body>
+</html>
